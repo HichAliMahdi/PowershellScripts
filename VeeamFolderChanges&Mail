@@ -1,0 +1,28 @@
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = "E:\Backup Production\"
+$watcher.Filter = “*.*”
+$watcher.IncludeSubdirectories = $true
+$watcher.EnableRaisingEvents = $true
+
+$action = {
+$fileName = Split-Path $Event.SourceEventArgs.FullPath -leaf
+$path = $Event.SourceEventArgs.FullPath
+
+if (-not ($fileName -like ‘*.resources’) ) {
+
+$changeType = $Event.SourceEventArgs.ChangeType
+$logline = "$(Get-Date), $changeType, $path"
+Add-content "C:\monitor_changes.txt" -value $logline
+
+$smtpServer = "XXXXXX"
+$smtpPort = #SMTP PORT
+$username = "XXXXX"
+$password = "XXXXX"
+$from = "XXXXX"
+$to = "XXXXX"
+$subject = "VEEAM FOLDER REPORT"
+# Set the file path and name
+$file = "C:\monitor_changes.txt"
+$emailMessage = New-Object System.Net.Mail.MailMessage($from, $to, $subject, "")
+$emailAttachment = New-Object System.Net.Mail.Attachment($file)
+$emailMessage.Attachments.Add($emailAttachment)
